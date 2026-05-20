@@ -1,0 +1,176 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif;
+  background: linear-gradient(160deg, #0079bf 0%, #5067c5 100%);
+  color: #172b4d;
+}
+
+.board-header {
+  padding: 1.25rem 1.5rem 0.5rem;
+  color: #fff;
+}
+
+.board-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.board-header__hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.board {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem 2rem;
+  overflow-x: auto;
+  align-items: flex-start;
+}
+
+.list {
+  flex: 0 0 280px;
+  background: #ebecf0;
+  border-radius: 12px;
+  padding: 0.75rem;
+  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.list__title {
+  margin: 0 0 0.75rem;
+  padding: 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.list__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.card__title {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.card__delete {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: #6b778c;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.card__delete:hover {
+  background: #f4f5f7;
+  color: #172b4d;
+}
+
+.add-card {
+  margin-top: 0.5rem;
+}
+
+.add-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-card__form.is-hidden,
+.add-card__toggle.is-hidden {
+  display: none;
+}
+
+.add-card__input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 2px solid #0079bf;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 2.5rem;
+}
+
+.add-card__input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 121, 191, 0.25);
+}
+
+.add-card__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background: #0079bf;
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background: #026aa7;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: #5e6c84;
+}
+
+.btn--ghost:hover {
+  background: rgba(9, 30, 66, 0.08);
+}
+
+.add-card__toggle {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: #5e6c84;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+}
+
+.add-card__toggle:hover {
+  background: rgba(9, 30, 66, 0.08);
+  color: #172b4d;
+}
