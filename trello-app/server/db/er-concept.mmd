@@ -1,0 +1,20 @@
+erDiagram
+    boards ||--|{ lists : "1 対多"
+    lists ||--|{ cards : "1 対多"
+
+    boards {
+        int id PK
+        string title
+    }
+    lists {
+        int id PK
+        int board_id FK
+        string title
+        int sort_order
+    }
+    cards {
+        int id PK
+        int list_id FK
+        string title
+        int sort_order
+    }

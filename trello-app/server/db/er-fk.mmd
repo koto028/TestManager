@@ -1,0 +1,15 @@
+erDiagram
+    boards ||--o{ lists : "board_id"
+    lists ||--o{ cards : "list_id"
+
+    boards {
+        int id PK
+    }
+    lists {
+        int id PK
+        int board_id FK
+    }
+    cards {
+        int id PK
+        int list_id FK
+    }

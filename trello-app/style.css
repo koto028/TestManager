@@ -174,3 +174,33 @@ body {
   background: rgba(9, 30, 66, 0.08);
   color: #172b4d;
 }
+
+.board-status {
+  color: #fff;
+  padding: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.board-status--error {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  max-width: 640px;
+}
+
+.board-status code {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.board-status__steps {
+  margin: 0.75rem 0 1rem;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+
+.board-status a {
+  color: #fff;
+  text-decoration: underline;
+}

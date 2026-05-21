@@ -1,0 +1,26 @@
+erDiagram
+    boards ||--|{ lists : "fk_lists_board"
+    lists ||--|{ cards : "fk_cards_list"
+
+    boards {
+        int_unsigned id PK "AUTO_INCREMENT"
+        varchar_255 title "NOT NULL"
+        timestamp created_at
+        timestamp updated_at
+    }
+    lists {
+        int_unsigned id PK "AUTO_INCREMENT"
+        int_unsigned board_id FK "NOT NULL"
+        varchar_255 title "NOT NULL"
+        int_unsigned sort_order
+        timestamp created_at
+        timestamp updated_at
+    }
+    cards {
+        int_unsigned id PK "AUTO_INCREMENT"
+        int_unsigned list_id FK "NOT NULL"
+        text title "NOT NULL"
+        int_unsigned sort_order
+        timestamp created_at
+        timestamp updated_at
+    }
