@@ -1,8 +1,11 @@
 const API_BASE = "";
+const BYPASS_STORAGE_KEY = "trello-app-bypass-lists";
 
 let lists = [];
 let isLoading = false;
 let loadError = null;
+let bypassMode = false;
+let nextCardId = 100;
 
 const boardEl = document.getElementById("board");
 
@@ -11,9 +14,96 @@ boardEl.addEventListener("submit", handleBoardSubmit);
 
 init();
 
+function isBypassModeRequested() {
+  if (window.location.protocol === "file:") return true;
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("bypass") === "1") return true;
+
+  return localStorage.getItem("trello-bypass-mode") === "1";
+}
+
+function enableBypassMode() {
+  bypassMode = true;
+  localStorage.setItem("trello-bypass-mode", "1");
+}
+
+function getDefaultBypassLists() {
+  return [
+    {
+      id: "1",
+      title: "やること",
+      cards: [
+        { id: "c1", title: "はじめてのタスク" },
+        { id: "c2", title: "レポート提出" },
+      ],
+    },
+    {
+      id: "2",
+      title: "進行中",
+      cards: [{ id: "c3", title: "API 設計を読む" }],
+    },
+    {
+      id: "3",
+      title: "完了",
+      cards: [{ id: "c4", title: "環境構築" }],
+    },
+  ];
+}
+
+function loadBypassLists() {
+  const raw = localStorage.getItem(BYPASS_STORAGE_KEY);
+  if (!raw) return getDefaultBypassLists();
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      syncNextCardId(parsed);
+      return parsed;
+    }
+  } catch {
+    // fall through to defaults
+  }
+
+  return getDefaultBypassLists();
+}
+
+function saveBypassLists() {
+  localStorage.setItem(BYPASS_STORAGE_KEY, JSON.stringify(lists));
+}
+
+function syncNextCardId(sourceLists) {
+  let maxId = 99;
+  for (const list of sourceLists) {
+    for (const card of list.cards || []) {
+      const match = String(card.id).match(/^c(\d+)$/);
+      if (match) maxId = Math.max(maxId, Number(match[1]));
+    }
+  }
+  nextCardId = maxId + 1;
+}
+
+function showBypassBanner() {
+  const hint = document.querySelector(".board-header__hint");
+  if (!hint) return;
+
+  hint.textContent =
+    "バイパスモード：API / MySQL を使わず localStorage に保存しています";
+  hint.classList.add("board-header__hint--bypass");
+}
+
+function initBypass() {
+  enableBypassMode();
+  showBypassBanner();
+  lists = loadBypassLists();
+  isLoading = false;
+  loadError = null;
+  render();
+}
+
 async function init() {
-  if (window.location.protocol === "file:") {
-    showSetupGuide();
+  if (isBypassModeRequested()) {
+    initBypass();
     return;
   }
 
@@ -24,21 +114,6 @@ async function init() {
   } catch (error) {
     showError(error.message);
   }
-}
-
-function showSetupGuide() {
-  boardEl.innerHTML = `
-    <div class="board-status board-status--error">
-      <p><strong>index.html を直接開いているため、表示できません。</strong></p>
-      <p>Phase 2（MySQL 版）では API サーバー経由で開く必要があります。</p>
-      <ol class="board-status__steps">
-        <li><a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js LTS</a> をインストール（npm 付属）</li>
-        <li>MySQL を起動し、<code>trello_app</code> DB と schema / seed を適用</li>
-        <li><code>trello-app/server</code> で <code>npm install</code> → <code>npm start</code></li>
-        <li>ブラウザで <a href="http://localhost:3000/index.html">http://localhost:3000/index.html</a> を開く</li>
-      </ol>
-    </div>
-  `;
 }
 
 function showLoading() {
@@ -62,11 +137,21 @@ function showError(message) {
         <li><a href="http://localhost:3000/index.html">http://localhost:3000/index.html</a> で開いているか</li>
       </ul>
       <button type="button" class="btn btn--primary" data-action="retry-load">再読み込み</button>
+      <button type="button" class="btn btn--ghost board-status__bypass" data-action="enable-bypass">
+        バイパスモードで表示
+      </button>
     </div>
   `;
 }
 
 async function loadBoard() {
+  if (bypassMode) {
+    lists = loadBypassLists();
+    isLoading = false;
+    loadError = null;
+    return;
+  }
+
   const response = await fetch(`${API_BASE}/api/board`);
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
@@ -80,6 +165,16 @@ async function loadBoard() {
 }
 
 async function addCard(listId, title) {
+  if (bypassMode) {
+    const list = lists.find((item) => String(item.id) === String(listId));
+    if (!list) return;
+
+    list.cards.push({ id: `c${nextCardId++}`, title });
+    saveBypassLists();
+    render();
+    return;
+  }
+
   const response = await fetch(`${API_BASE}/api/lists/${listId}/cards`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -96,6 +191,15 @@ async function addCard(listId, title) {
 }
 
 async function deleteCard(cardId) {
+  if (bypassMode) {
+    for (const list of lists) {
+      list.cards = list.cards.filter((card) => String(card.id) !== String(cardId));
+    }
+    saveBypassLists();
+    render();
+    return;
+  }
+
   const response = await fetch(`${API_BASE}/api/cards/${cardId}`, {
     method: "DELETE",
   });
@@ -169,6 +273,11 @@ async function handleBoardClick(event) {
     } catch (error) {
       showError(error.message);
     }
+    return;
+  }
+
+  if (action === "enable-bypass") {
+    initBypass();
     return;
   }
 
