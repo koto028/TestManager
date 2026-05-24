@@ -1,0 +1,37 @@
+# ===== OS / Editor =====
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ===== Demo / Scratch =====
+# github-demo/ is a standalone nested git repo used only for GitHub workflow demos
+github-demo/
+
+# ===== Logs =====
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ===== Environment / Secrets =====
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ===== Java / Gradle =====
+# (backend/.gitignore handles most; this covers root-level build artifacts)
+*.class
+*.jar
+*.war
+hs_err_pid*
+
+# ===== Node (root-level, if any) =====
+node_modules/
