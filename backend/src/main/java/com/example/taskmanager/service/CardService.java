@@ -1,6 +1,7 @@
 package com.example.taskmanager.service;
 
 import com.example.taskmanager.dto.CardRequest;
+import com.example.taskmanager.dto.CardUpdateRequest;
 import com.example.taskmanager.dto.CardResponse;
 import com.example.taskmanager.entity.Card;
 import com.example.taskmanager.entity.TaskList;
@@ -36,6 +37,19 @@ public class CardService {
         card.setSortOrder(nextOrder);
         card.setCreatedAt(now);
         card.setUpdatedAt(now);
+
+        return CardResponse.from(cardRepository.save(card));
+    }
+
+    @Transactional
+    public CardResponse updateCard(Long cardId, CardUpdateRequest request) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new NoSuchElementException("Card not found: " + cardId));
+
+        card.setTitle(request.title());
+        card.setPriority(request.priority());
+        card.setDueDate(request.dueDate());
+        card.setUpdatedAt(LocalDateTime.now());
 
         return CardResponse.from(cardRepository.save(card));
     }

@@ -15,6 +15,9 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
 
 server:
   port: 8080

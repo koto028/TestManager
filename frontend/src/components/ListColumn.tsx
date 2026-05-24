@@ -13,7 +13,7 @@ export function ListColumn({ list, boardId }: Props) {
       <h3 className="font-semibold text-gray-700 text-sm px-1">{list.title}</h3>
       <div className="flex flex-col gap-2">
         {list.cards.map((card) => (
-          <CardItem key={card.id} card={card} />
+          <CardItem key={card.id} card={card} boardId={boardId} />
         ))}
       </div>
       {list.cards.length === 0 && (

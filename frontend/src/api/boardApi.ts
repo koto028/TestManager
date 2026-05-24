@@ -2,8 +2,16 @@ export interface Card {
   id: number
   title: string
   sortOrder: number
+  priority: number
+  dueDate: string | null
   createdAt: string
   updatedAt: string
+}
+
+export interface CardUpdatePayload {
+  title: string
+  priority: number
+  dueDate: string | null
 }
 
 export interface TaskList {
@@ -39,5 +47,11 @@ export const boardApi = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title }),
+    }),
+  updateCard: (cardId: number, payload: CardUpdatePayload) =>
+    request<Card>(`/cards/${cardId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     }),
 }

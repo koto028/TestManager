@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,6 +26,13 @@ public class Card {
 
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
+
+    // 0=none, 1=low, 2=medium, 3=high
+    @Column(nullable = false)
+    private Integer priority = 0;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
