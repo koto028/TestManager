@@ -1,0 +1,42 @@
+package com.example.taskmanager.service;
+
+import com.example.taskmanager.dto.CardRequest;
+import com.example.taskmanager.dto.CardResponse;
+import com.example.taskmanager.entity.Card;
+import com.example.taskmanager.entity.TaskList;
+import com.example.taskmanager.repository.CardRepository;
+import com.example.taskmanager.repository.TaskListRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
+
+@Service
+@RequiredArgsConstructor
+public class CardService {
+
+    private final CardRepository cardRepository;
+    private final TaskListRepository taskListRepository;
+
+    @Transactional
+    public CardResponse createCard(Long listId, CardRequest request) {
+        TaskList taskList = taskListRepository.findById(listId)
+                .orElseThrow(() -> new NoSuchElementException("List not found: " + listId));
+
+        int nextOrder = cardRepository.findMaxSortOrderByListId(listId)
+                .map(max -> max + 1)
+                .orElse(1);
+
+        LocalDateTime now = LocalDateTime.now();
+        Card card = new Card();
+        card.setTaskList(taskList);
+        card.setTitle(request.title());
+        card.setSortOrder(nextOrder);
+        card.setCreatedAt(now);
+        card.setUpdatedAt(now);
+
+        return CardResponse.from(cardRepository.save(card));
+    }
+}
