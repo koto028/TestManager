@@ -1,0 +1,25 @@
+name: 技術的改善・その他
+description: リファクタリング、依存更新、ドキュメント整備など
+title: "[Chore] "
+labels: ["chore"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        技術的な改善・メンテナンス作業の登録です。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: 何をするかを一言で説明してください
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: 詳細・対応内容
+      description: 具体的な作業内容を記述してください
+    validations:
+      required: true

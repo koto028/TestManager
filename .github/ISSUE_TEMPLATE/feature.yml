@@ -1,0 +1,47 @@
+name: 機能追加
+description: 新しい機能の追加・改善を提案する
+title: "[Feature] "
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        機能追加・改善の提案をありがとうございます。以下の項目を記入してください。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: 追加・改善したい機能を一言で説明してください
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: 背景・目的
+      description: なぜこの機能が必要か、どんな課題を解決するかを説明してください
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: 詳細仕様
+      description: 実装の詳細、受け入れ条件、UIの変化などを記述してください
+      placeholder: |
+        - [ ] 〇〇ができること
+        - [ ] 〇〇が表示されること
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      options:
+        - 高（今スプリントで対応）
+        - 中（次スプリントで対応）
+        - 低（バックログ）
+    validations:
+      required: true
