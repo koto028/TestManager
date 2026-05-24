@@ -5,6 +5,8 @@
 
 const DEMO_FORM_LIST_ID = "2";
 
+let dragging = null; // { cardId, listId }
+
 let lists = [
   {
     id: "1",
@@ -32,6 +34,10 @@ const boardEl = document.getElementById("board");
 
 boardEl.addEventListener("click", handleBoardClick);
 boardEl.addEventListener("submit", handleBoardSubmit);
+boardEl.addEventListener("dragstart", handleDragStart);
+boardEl.addEventListener("dragover", handleDragOver);
+boardEl.addEventListener("drop", handleDrop);
+boardEl.addEventListener("dragend", handleDragEnd);
 
 init();
 
@@ -77,7 +83,8 @@ function renderList(list) {
 
 function renderCard(card) {
   return `
-    <article class="card" data-card-id="${card.id}">
+    <article class="card" data-card-id="${card.id}" draggable="true">
+      <span class="card__drag-handle" aria-hidden="true">⠿</span>
       <p class="card__title">${escapeHtml(card.title)}</p>
       <button
         type="button"
@@ -131,6 +138,83 @@ function handleBoardSubmit(event) {
   addCard(listId, title);
   input.value = "";
   hideAddForm(listEl);
+}
+
+function handleDragStart(e) {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  const list = card.closest(".list");
+  dragging = { cardId: card.dataset.cardId, listId: list.dataset.listId };
+  card.classList.add("is-dragging");
+  e.dataTransfer.effectAllowed = "move";
+}
+
+function handleDragOver(e) {
+  if (!dragging) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+
+  clearDropIndicators();
+
+  const targetCard = e.target.closest(".card");
+  if (targetCard && targetCard.dataset.cardId !== dragging.cardId) {
+    const rect = targetCard.getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      targetCard.classList.add("drop-before");
+    } else {
+      targetCard.classList.add("drop-after");
+    }
+    return;
+  }
+
+  const targetCards = e.target.closest(".list__cards");
+  if (targetCards) {
+    targetCards.classList.add("drop-target");
+  }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  if (!dragging) return;
+
+  const targetList = e.target.closest(".list");
+  if (!targetList) return;
+
+  const targetListId = targetList.dataset.listId;
+  const targetCard = e.target.closest(".card");
+
+  const sourceList = lists.find((l) => l.id === dragging.listId);
+  const card = sourceList.cards.find((c) => c.id === dragging.cardId);
+  sourceList.cards = sourceList.cards.filter((c) => c.id !== dragging.cardId);
+
+  const destList = lists.find((l) => l.id === targetListId);
+
+  if (targetCard && targetCard.dataset.cardId !== dragging.cardId) {
+    const rect = targetCard.getBoundingClientRect();
+    const idx = destList.cards.findIndex((c) => c.id === targetCard.dataset.cardId);
+    if (e.clientY < rect.top + rect.height / 2) {
+      destList.cards.splice(idx, 0, card);
+    } else {
+      destList.cards.splice(idx + 1, 0, card);
+    }
+  } else {
+    destList.cards.push(card);
+  }
+
+  dragging = null;
+  render();
+}
+
+function handleDragEnd() {
+  clearDropIndicators();
+  boardEl.querySelectorAll(".is-dragging").forEach((el) => el.classList.remove("is-dragging"));
+  dragging = null;
+}
+
+function clearDropIndicators() {
+  boardEl.querySelectorAll(".drop-before, .drop-after, .drop-target").forEach((el) => {
+    el.classList.remove("drop-before", "drop-after", "drop-target");
+  });
 }
 
 function addCard(listId, title) {

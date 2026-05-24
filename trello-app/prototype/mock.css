@@ -77,7 +77,7 @@ body {
   gap: 0.5rem;
   overflow-y: auto;
   flex: 1;
-  min-height: 0;
+  min-height: 2rem;
 }
 
 .card {
@@ -89,6 +89,39 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+}
+
+.card__drag-handle {
+  flex-shrink: 0;
+  color: #c1c7d0;
+  font-size: 1.1rem;
+  cursor: grab;
+  user-select: none;
+  line-height: 1.4;
+}
+
+.card:hover .card__drag-handle {
+  color: #6b778c;
+}
+
+.card.is-dragging {
+  opacity: 0.35;
+  box-shadow: none;
+}
+
+.card.drop-before {
+  border-top-color: #0079bf;
+}
+
+.card.drop-after {
+  border-bottom-color: #0079bf;
+}
+
+.list__cards.drop-target {
+  background: rgba(0, 121, 191, 0.1);
+  border-radius: 6px;
 }
 
 .card__title {
