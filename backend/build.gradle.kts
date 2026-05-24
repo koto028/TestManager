@@ -40,3 +40,26 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+// ポート 8080 を占有しているプロセスを停止してから bootRun を実行するタスク
+tasks.register("bootRunSafe") {
+    group = "application"
+    description = "Kill any process on port 8080, then run bootRun"
+    doFirst {
+        val port = 8080
+        try {
+            val result = Runtime.getRuntime().exec(
+                arrayOf("powershell", "-Command",
+                    "Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | " +
+                    "Select-Object -ExpandProperty OwningProcess | " +
+                    "ForEach-Object { Stop-Process -Id \$_ -Force -ErrorAction SilentlyContinue }")
+            )
+            result.waitFor()
+            Thread.sleep(1500)
+            println("Port $port cleared.")
+        } catch (e: Exception) {
+            println("Could not clear port $port: ${e.message}")
+        }
+    }
+    finalizedBy("bootRun")
+}
