@@ -25,8 +25,8 @@ export interface Board {
 
 const BASE = '/api'
 
-async function request<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`)
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, options)
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
   return res.json() as Promise<T>
 }
@@ -34,4 +34,10 @@ async function request<T>(path: string): Promise<T> {
 export const boardApi = {
   list: () => request<Board[]>('/boards'),
   get: (id: number) => request<Board>(`/boards/${id}`),
+  createCard: (listId: number, title: string) =>
+    request<Card>(`/lists/${listId}/cards`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    }),
 }
