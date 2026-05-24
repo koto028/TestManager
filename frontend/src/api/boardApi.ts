@@ -2,8 +2,16 @@ export interface Card {
   id: number
   title: string
   sortOrder: number
+  priority: number
+  dueDate: string | null
   createdAt: string
   updatedAt: string
+}
+
+export interface CardUpdatePayload {
+  title: string
+  priority: number
+  dueDate: string | null
 }
 
 export interface TaskList {
@@ -25,8 +33,8 @@ export interface Board {
 
 const BASE = '/api'
 
-async function request<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`)
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, options)
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
   return res.json() as Promise<T>
 }
@@ -34,4 +42,10 @@ async function request<T>(path: string): Promise<T> {
 export const boardApi = {
   list: () => request<Board[]>('/boards'),
   get: (id: number) => request<Board>(`/boards/${id}`),
+  updateCard: (cardId: number, payload: CardUpdatePayload) =>
+    request<Card>(`/cards/${cardId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }),
 }
