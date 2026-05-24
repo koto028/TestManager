@@ -1,5 +1,6 @@
 import type { TaskList } from '../api/boardApi'
 import { CardItem } from './CardItem'
+import { AddCardForm } from './AddCardForm'
 
 interface Props {
   list: TaskList
@@ -18,6 +19,7 @@ export function ListColumn({ list, boardId }: Props) {
       {list.cards.length === 0 && (
         <p className="text-xs text-gray-400 px-1">カードがありません</p>
       )}
+      <AddCardForm listId={list.id} boardId={boardId} />
     </div>
   )
 }

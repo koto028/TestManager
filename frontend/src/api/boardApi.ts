@@ -42,6 +42,12 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export const boardApi = {
   list: () => request<Board[]>('/boards'),
   get: (id: number) => request<Board>(`/boards/${id}`),
+  createCard: (listId: number, title: string) =>
+    request<Card>(`/lists/${listId}/cards`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    }),
   updateCard: (cardId: number, payload: CardUpdatePayload) =>
     request<Card>(`/cards/${cardId}`, {
       method: 'PATCH',
