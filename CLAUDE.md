@@ -59,12 +59,45 @@ Hibernate の `ddl-auto` は `validate` のままにし、直接スキーマを�
 
 命名規則: `V{次の番号}__{説明}.sql`（例: `V2__add_due_date_to_cards.sql`）
 
-## Docker
+## 起動手順
 
-```bash
-# DB 起動
+### 使用ポート（固定・変更不可）
+
+| サービス | ポート | URL |
+|---------|--------|-----|
+| PostgreSQL | 5432 | — |
+| バックエンド (Spring Boot) | 8080 | http://localhost:8080 |
+| フロントエンド (Vite) | 5173 | http://localhost:5173 |
+
+### 起動コマンド（ポート競合を自動解消）
+
+ターミナルを **3つ** 開いて順番に実行する。
+
+```powershell
+# ターミナル 1 — DB
 docker compose up -d
 
-# バックエンド起動
-cd backend && ./gradlew bootRun
+# ターミナル 2 — バックエンド（ポート 8080 を自動解放してから起動）
+.\scripts\start-backend.ps1
+# または Gradle タスクで直接実行
+cd backend; .\gradlew bootRunSafe
+
+# ターミナル 3 — フロントエンド（ポート 5173 を自動解放してから起動）
+cd frontend; npm run dev   # predev で 5173 を自動解放してから Vite を起動
 ```
+
+### 動作確認 URL
+
+| 確認内容 | URL |
+|---------|-----|
+| バックエンド疎通 | http://localhost:8080/api/health |
+| ボード一覧画面 | http://localhost:5173/ |
+| ボード詳細画面 | http://localhost:5173/boards/1 |
+
+### ポート競合時の対処（プログラム的解決）
+
+- **フロント**: `npm run dev` の `predev` フックが `scripts/free-port.mjs` を実行し、5173 を占有するプロセスを自動停止する
+- **バックエンド**: `.\gradlew bootRunSafe` タスクが 8080 を占有するプロセスを自動停止してから `bootRun` を実行する
+- **手動で解放したい場合**: `scripts/start-backend.ps1` / `scripts/start-frontend.ps1` を実行する
+
+> **注意**: ポート番号は変更しない。フロントの Vite proxy が `/api → localhost:8080` に固定されており、番号を変えると連携が壊れる。
