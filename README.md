@@ -1,3 +1,12 @@
-￥」￥￥￥￥￥# TestManager
+# TestManager
 
-info about this project
+タスク管理アプリ（Trello 風）のスクール課題リポジトリ。
+
+## ドキュメント
+
+- **入口:** [要件定義書【タスク管理アプリ】.md](./要件定義書【タスク管理アプリ】.md)（概要・リンク集）
+- **詳細:** [docs/](./docs/) 配下に機能要件・画面設計・DB 設計などを分割
+
+## アプリ
+
+- [trello-app/](./trello-app/) … フロント + API サーバー
