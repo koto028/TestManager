@@ -27,6 +27,9 @@ export function BoardView({ board }: Props) {
     const destListId = Number(destination.droppableId)
     const cardId = Number(draggableId)
 
+    // 操作前のスナップショットを保存（ロールバック用）
+    const snapshot = lists
+
     // 楽観的UI更新
     const newLists = lists.map((l) => ({ ...l, cards: [...l.cards] }))
     const srcList = newLists.find((l) => l.id === sourceListId)!
@@ -42,8 +45,8 @@ export function BoardView({ board }: Props) {
       calls.push(boardApi.reorderCards(sourceListId, srcList.cards.map((c) => c.id)))
     }
     Promise.all(calls).catch(() => {
-      // エラー時は元の状態に戻す
-      setLists(board.lists)
+      // エラー時はこの操作直前の状態に戻す
+      setLists(snapshot)
     })
 
     void cardId
