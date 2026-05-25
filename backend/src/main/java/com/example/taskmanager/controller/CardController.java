@@ -1,5 +1,6 @@
 package com.example.taskmanager.controller;
 
+import com.example.taskmanager.dto.CardReorderRequest;
 import com.example.taskmanager.dto.CardRequest;
 import com.example.taskmanager.dto.CardUpdateRequest;
 import com.example.taskmanager.dto.CardResponse;
@@ -25,6 +26,18 @@ public class CardController {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(cardService.createCard(listId, request));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping("/api/lists/{listId}/reorder")
+    public ResponseEntity<Void> reorderCards(
+            @PathVariable Long listId,
+            @RequestBody CardReorderRequest request) {
+        try {
+            cardService.reorderCards(listId, request);
+            return ResponseEntity.ok().build();
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
