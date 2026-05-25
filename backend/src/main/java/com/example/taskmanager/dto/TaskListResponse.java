@@ -9,6 +9,7 @@ public record TaskListResponse(
         Long id,
         String title,
         Integer sortOrder,
+        Integer priority,
         List<CardResponse> cards,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -18,6 +19,7 @@ public record TaskListResponse(
                 list.getId(),
                 list.getTitle(),
                 list.getSortOrder(),
+                list.getPriority(),
                 list.getCards().stream().map(CardResponse::from).toList(),
                 list.getCreatedAt(),
                 list.getUpdatedAt()
