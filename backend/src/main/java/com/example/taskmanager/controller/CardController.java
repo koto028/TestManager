@@ -44,7 +44,7 @@ public class CardController {
     @PatchMapping("/api/lists/{listId}/reorder")
     public ResponseEntity<Void> reorderCards(
             @PathVariable Long listId,
-            @RequestBody CardReorderRequest request) {
+            @RequestBody @Valid CardReorderRequest request) {
         try {
             cardService.reorderCards(listId, request);
             return ResponseEntity.ok().build();
