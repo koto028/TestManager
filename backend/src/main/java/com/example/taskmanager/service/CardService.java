@@ -1,5 +1,6 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.dto.CardReorderRequest;
 import com.example.taskmanager.dto.CardRequest;
 import com.example.taskmanager.dto.CardUpdateRequest;
 import com.example.taskmanager.dto.CardResponse;
@@ -12,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,32 @@ public class CardService {
         card.setUpdatedAt(now);
 
         return CardResponse.from(cardRepository.save(card));
+    }
+
+    @Transactional
+    public void reorderCards(Long listId, CardReorderRequest request) {
+        TaskList taskList = taskListRepository.findById(listId)
+                .orElseThrow(() -> new NoSuchElementException("List not found: " + listId));
+
+        List<Card> cards = (List<Card>) cardRepository.findAllById(request.cardIds());
+        Map<Long, Card> cardMap = cards.stream().collect(Collectors.toMap(Card::getId, c -> c));
+
+        List<Card> ordered = request.cardIds().stream()
+                .map(id -> {
+                    Card c = cardMap.get(id);
+                    if (c == null) throw new NoSuchElementException("Card not found: " + id);
+                    return c;
+                })
+                .toList();
+
+        for (int i = 0; i < ordered.size(); i++) {
+            Card card = ordered.get(i);
+            card.setTaskList(taskList);
+            card.setSortOrder(i + 1);
+            card.setUpdatedAt(LocalDateTime.now());
+        }
+
+        cardRepository.saveAll(ordered);
     }
 
     @Transactional

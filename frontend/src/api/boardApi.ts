@@ -54,4 +54,10 @@ export const boardApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     }),
+  reorderCards: (listId: number, cardIds: number[]) =>
+    request<void>(`/lists/${listId}/reorder`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cardIds }),
+    }),
 }
