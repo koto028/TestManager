@@ -31,6 +31,16 @@ public class CardController {
         }
     }
 
+    @DeleteMapping("/api/cards/{id}")
+    public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
+        try {
+            cardService.deleteCard(id);
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PatchMapping("/api/lists/{listId}/reorder")
     public ResponseEntity<Void> reorderCards(
             @PathVariable Long listId,
