@@ -47,7 +47,7 @@ public class CardController {
             @RequestBody @Valid CardReorderRequest request) {
         try {
             cardService.reorderCards(listId, request);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.noContent().build();
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }

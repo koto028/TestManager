@@ -33,12 +33,17 @@ interface Props {
 
 export function ListColumn({ list, boardId }: Props) {
   const [sortMode, setSortMode] = useState<SortMode>('default')
+  const [priorityError, setPriorityError] = useState(false)
   const queryClient = useQueryClient()
 
   const priorityMutation = useMutation({
     mutationFn: (next: number) => boardApi.updateListPriority(list.id, next),
     onSuccess: () => {
+      setPriorityError(false)
       queryClient.invalidateQueries({ queryKey: ['boards', boardId] })
+    },
+    onError: () => {
+      setPriorityError(true)
     },
   })
 
@@ -103,6 +108,9 @@ export function ListColumn({ list, boardId }: Props) {
 
       {list.cards.length === 0 && (
         <p className="text-xs text-gray-400 px-1">カードがありません</p>
+      )}
+      {priorityError && (
+        <p className="text-xs text-red-500 px-1">優先度の変更に失敗しました</p>
       )}
       <AddCardForm listId={list.id} boardId={boardId} />
     </div>

@@ -32,6 +32,8 @@ export function CardItem({ card, boardId, index }: Props) {
   const [title, setTitle] = useState(card.title)
   const [priority, setPriority] = useState(card.priority)
   const [dueDate, setDueDate] = useState(card.dueDate ?? '')
+  const [priorityError, setPriorityError] = useState(false)
+  const [deleteError, setDeleteError] = useState(false)
   const queryClient = useQueryClient()
 
   const updateMutation = useMutation({
@@ -55,7 +57,11 @@ export function CardItem({ card, boardId, index }: Props) {
         dueDate: card.dueDate,
       }),
     onSuccess: () => {
+      setPriorityError(false)
       queryClient.invalidateQueries({ queryKey: ['boards', boardId] })
+    },
+    onError: () => {
+      setPriorityError(true)
     },
   })
 
@@ -63,6 +69,9 @@ export function CardItem({ card, boardId, index }: Props) {
     mutationFn: () => boardApi.deleteCard(card.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards', boardId] })
+    },
+    onError: () => {
+      setDeleteError(true)
     },
   })
 
@@ -198,6 +207,12 @@ export function CardItem({ card, boardId, index }: Props) {
                   </p>
                 )}
               </div>
+              {priorityError && (
+                <p className="mt-1 text-xs text-red-500">優先度の変更に失敗しました</p>
+              )}
+              {deleteError && (
+                <p className="mt-1 text-xs text-red-500">削除に失敗しました</p>
+              )}
             </div>
           )}
         </div>
