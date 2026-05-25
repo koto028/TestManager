@@ -18,6 +18,7 @@ export interface TaskList {
   id: number
   title: string
   sortOrder: number
+  priority: number
   cards: Card[]
   createdAt: string
   updatedAt: string
@@ -62,4 +63,10 @@ export const boardApi = {
     }),
   deleteCard: (cardId: number) =>
     request<void>(`/cards/${cardId}`, { method: 'DELETE' }),
+  updateListPriority: (listId: number, priority: number) =>
+    request<TaskList>(`/lists/${listId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priority }),
+    }),
 }

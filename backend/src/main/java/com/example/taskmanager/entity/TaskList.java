@@ -28,6 +28,10 @@ public class TaskList {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
 
+    // 0=none, 1=low, 2=medium, 3=high
+    @Column(nullable = false)
+    private Integer priority = 0;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
