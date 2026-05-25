@@ -4,12 +4,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Card } from '../api/boardApi'
 import { boardApi } from '../api/boardApi'
 
-const PRIORITY_LABELS = ['', '低', '中', '高'] as const
+const PRIORITY_LABELS = ['なし', '低', '中', '高'] as const
 const PRIORITY_COLORS = [
-  '',
-  'bg-green-100 text-green-700',
-  'bg-yellow-100 text-yellow-700',
-  'bg-red-100 text-red-700',
+  'text-gray-400 border border-dashed border-gray-300 hover:border-gray-400',
+  'bg-green-100 text-green-700 hover:bg-green-200',
+  'bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
+  'bg-red-100 text-red-600 hover:bg-red-200',
 ] as const
 
 interface Props {
@@ -47,19 +47,24 @@ export function CardItem({ card, boardId, index }: Props) {
     },
   })
 
+  const priorityMutation = useMutation({
+    mutationFn: (next: number) =>
+      boardApi.updateCard(card.id, {
+        title: card.title,
+        priority: next,
+        dueDate: card.dueDate,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boards', boardId] })
+    },
+  })
+
   const deleteMutation = useMutation({
     mutationFn: () => boardApi.deleteCard(card.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boards', boardId] })
     },
   })
-
-  function handleDelete(e: React.MouseEvent) {
-    e.stopPropagation()
-    if (window.confirm(`「${card.title}」を削除しますか？`)) {
-      deleteMutation.mutate()
-    }
-  }
 
   function handleSave() {
     if (!title.trim()) return
@@ -76,6 +81,19 @@ export function CardItem({ card, boardId, index }: Props) {
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSave() }
     if (e.key === 'Escape') handleCancel()
+  }
+
+  function handleDelete(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (window.confirm(`「${card.title}」を削除しますか？`)) {
+      deleteMutation.mutate()
+    }
+  }
+
+  function handleCyclePriority(e: React.MouseEvent) {
+    e.stopPropagation()
+    const next = (card.priority + 1) % 4
+    priorityMutation.mutate(next)
   }
 
   return (
@@ -150,6 +168,7 @@ export function CardItem({ card, boardId, index }: Props) {
                 snapshot.isDragging ? 'shadow-lg rotate-1 opacity-90' : ''
               }`}
             >
+              {/* 削除ボタン */}
               <button
                 onClick={handleDelete}
                 disabled={deleteMutation.isPending}
@@ -158,19 +177,27 @@ export function CardItem({ card, boardId, index }: Props) {
               >
                 ✕
               </button>
-              <div className="flex items-start justify-between gap-1 pr-5">
+
+              <div className="flex items-start gap-1 pr-5">
                 <span className="flex-1 leading-snug">{card.title}</span>
-                {card.priority > 0 && (
-                  <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[card.priority]}`}>
-                    {PRIORITY_LABELS[card.priority]}
-                  </span>
+              </div>
+
+              {/* 優先度バッジ（クリックで循環） */}
+              <div className="mt-1.5 flex items-center justify-between">
+                <button
+                  onClick={handleCyclePriority}
+                  disabled={priorityMutation.isPending}
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 ${PRIORITY_COLORS[card.priority]}`}
+                  title="クリックで優先度を変更"
+                >
+                  {PRIORITY_LABELS[card.priority]}
+                </button>
+                {card.dueDate && (
+                  <p className={`text-xs ${isOverdue(card.dueDate) ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+                    {isOverdue(card.dueDate) ? '⚠ ' : ''}期日: {formatDate(card.dueDate)}
+                  </p>
                 )}
               </div>
-              {card.dueDate && (
-                <p className={`mt-1 text-xs ${isOverdue(card.dueDate) ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
-                  {isOverdue(card.dueDate) ? '⚠ ' : ''}期日: {formatDate(card.dueDate)}
-                </p>
-              )}
             </div>
           )}
         </div>
