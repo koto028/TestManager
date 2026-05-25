@@ -34,7 +34,7 @@ export function CardItem({ card, boardId, index }: Props) {
   const [dueDate, setDueDate] = useState(card.dueDate ?? '')
   const queryClient = useQueryClient()
 
-  const mutation = useMutation({
+  const updateMutation = useMutation({
     mutationFn: () =>
       boardApi.updateCard(card.id, {
         title: title.trim(),
@@ -47,9 +47,23 @@ export function CardItem({ card, boardId, index }: Props) {
     },
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: () => boardApi.deleteCard(card.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boards', boardId] })
+    },
+  })
+
+  function handleDelete(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (window.confirm(`「${card.title}」を削除しますか？`)) {
+      deleteMutation.mutate()
+    }
+  }
+
   function handleSave() {
     if (!title.trim()) return
-    mutation.mutate()
+    updateMutation.mutate()
   }
 
   function handleCancel() {
@@ -109,17 +123,17 @@ export function CardItem({ card, boardId, index }: Props) {
                 </div>
               </div>
 
-              {mutation.isError && (
+              {updateMutation.isError && (
                 <p className="text-xs text-red-500">保存に失敗しました。再試行してください。</p>
               )}
 
               <div className="flex gap-2">
                 <button
                   onClick={handleSave}
-                  disabled={!title.trim() || mutation.isPending}
+                  disabled={!title.trim() || updateMutation.isPending}
                   className="flex-1 rounded bg-blue-500 px-2 py-1 text-xs font-medium text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
                 >
-                  {mutation.isPending ? '保存中...' : '保存'}
+                  {updateMutation.isPending ? '保存中...' : '保存'}
                 </button>
                 <button
                   onClick={handleCancel}
@@ -132,11 +146,19 @@ export function CardItem({ card, boardId, index }: Props) {
           ) : (
             <div
               onClick={() => setEditing(true)}
-              className={`bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-sm text-gray-800 hover:shadow-md hover:border-blue-300 transition-all cursor-grab active:cursor-grabbing ${
+              className={`group relative bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-sm text-gray-800 hover:shadow-md hover:border-blue-300 transition-all cursor-grab active:cursor-grabbing ${
                 snapshot.isDragging ? 'shadow-lg rotate-1 opacity-90' : ''
               }`}
             >
-              <div className="flex items-start justify-between gap-1">
+              <button
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded text-gray-400 hover:bg-red-100 hover:text-red-500 transition-all disabled:opacity-50"
+                title="削除"
+              >
+                ✕
+              </button>
+              <div className="flex items-start justify-between gap-1 pr-5">
                 <span className="flex-1 leading-snug">{card.title}</span>
                 {card.priority > 0 && (
                   <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium ${PRIORITY_COLORS[card.priority]}`}>

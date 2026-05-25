@@ -60,4 +60,6 @@ export const boardApi = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cardIds }),
     }),
+  deleteCard: (cardId: number) =>
+    request<void>(`/cards/${cardId}`, { method: 'DELETE' }),
 }

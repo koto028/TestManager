@@ -72,6 +72,14 @@ public class CardService {
     }
 
     @Transactional
+    public void deleteCard(Long cardId) {
+        if (!cardRepository.existsById(cardId)) {
+            throw new NoSuchElementException("Card not found: " + cardId);
+        }
+        cardRepository.deleteById(cardId);
+    }
+
+    @Transactional
     public CardResponse updateCard(Long cardId, CardUpdateRequest request) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new NoSuchElementException("Card not found: " + cardId));
